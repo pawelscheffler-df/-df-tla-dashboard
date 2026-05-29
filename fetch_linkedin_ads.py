@@ -78,6 +78,9 @@ AD_TEXT = {
     "1200419173": "A strategy is only as good as your ability to articulate it. If your team can't follow you in the same direction, the…",
     "1195167003": "Everyone's racing to build an AI strategy. Meanwhile, the same five systems still don't talk to each other. Dave just…",
     "1260782853": "Something I keep noticing when I walk through a business for the first time. The thing they've documented isn't the…",
+    "1263591753": "We run our own business on the same principles we apply to clients. These are screens from our internal dashboard",
+    "1271088023": "Most companies struggle to get their people to use AI. That wasn't our problem. At Digital Forms, 80-90% of the team",
+    "1271088023": "The most expensive inaction is just the stuff that's too easy to live with. The cost of that normalization is real",
 }
 AD_IDS = list(AD_TEXT.keys())
 
