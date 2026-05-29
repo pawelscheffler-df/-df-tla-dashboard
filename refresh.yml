@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────────────────
+#  Refresh LinkedIn TLA dashboard data
+# ─────────────────────────────────────────────────────────────────────────
+#  Runs daily at 06:10 UTC (≈ 08:10 Warsaw winter, 07:10 summer). Calls
+#  LinkedIn's Marketing API via fetch_linkedin_ads.py, commits the resulting
+#  data/linkedin_ads.json back to the repo. GitHub Pages then serves the
+#  updated file. Total runtime ≈ 30 seconds.
+#
+#  Also runnable manually: repo → Actions → "Refresh LinkedIn data" →
+#  "Run workflow". Use this after first deploy or when you want fresh data
+#  outside the daily schedule.
+# ─────────────────────────────────────────────────────────────────────────
+
+name: Refresh LinkedIn data
+
+on:
+  schedule:
+    # Daily at 06:10 UTC. Avoid the top of the hour — that's when GitHub
+    # gets congested and scheduled runs are sometimes delayed by 20-30 min.
+    - cron: '10 6 * * *'
+  workflow_dispatch: # enables the "Run workflow" button
+
+permissions:
+  contents: write  # required so the action can commit the refreshed JSON
+
+concurrency:
+  group: refresh-linkedin
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch latest analytics
+        env:
+          LINKEDIN_CLIENT_ID:     ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+        run: python fetch_linkedin_ads.py --days 90
+
+      - name: Commit and push refreshed data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/linkedin_ads.json
+          if git diff --staged --quiet; then
+            echo "No changes — data is identical to last run."
+          else
+            git commit -m "chore: refresh LinkedIn data $(date -u +%Y-%m-%d)"
+            git push
+          fi

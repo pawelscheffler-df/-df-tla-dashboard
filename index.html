@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Forms — LinkedIn TL Ads</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--purple:#410270;--purple2:#5a0a94;--purple3:#2d0150;--teal:#00A880;--teal2:#00C99A;--red:#D92D55;--orange:#FF9900;--blue:#0EA5E9;--bg:#FFFFFF;--bg2:#f9f6fb;--bg3:#f2eaf8;--bg-dark:#2d0150;--card:#f9f6fb;--border:#e8ddf2;--text:#2d0150;--muted:#8a7a9a;--font:'Mulish',sans-serif;--mono:'JetBrains Mono',monospace;--sidebar:232px;--radius:12px;--radius-sm:8px;--shadow:0 4px 24px rgba(65,2,112,0.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex;min-height:100vh;font-size:14px;line-height:1.55;}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sidebar);background:var(--bg-dark);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sidebar-header{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.sidebar-header h2{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--teal2);}
+.sidebar-header p{font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;font-family:var(--mono);}
+.nav-list{padding:8px;flex:1;}
+.nav-group{margin-top:12px;margin-bottom:4px;padding:0 12px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.25);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:11.5px;font-weight:500;color:rgba(255,255,255,0.5);transition:all .15s;margin-bottom:1px;border:1px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);}
+.nav-item.active{background:rgba(0,201,154,0.12);border-color:rgba(0,201,154,0.25);color:#fff;}
+.nav-item .nn{width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:var(--mono);}
+.nav-item.active .nn{background:var(--teal2);color:var(--bg-dark);}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08);font-size:9px;color:rgba(255,255,255,0.25);font-family:var(--mono);}
+.li-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,119,181,0.18);border:1px solid rgba(0,119,181,0.35);border-radius:6px;padding:4px 8px;font-size:9px;font-weight:700;color:#5daacc;letter-spacing:.4px;font-family:var(--mono);margin-top:6px;}
+
+/* ── Main ── */
+.main{margin-left:var(--sidebar);flex:1;padding:28px 36px;max-width:1220px;}
+.page{display:none;}.page.active{display:block;}
+h1{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.3px;}
+.ps{color:var(--muted);font-size:13px;margin-bottom:24px;}
+.tag{display:inline-block;background:rgba(0,119,181,0.1);color:#0077B5;font-size:10px;padding:3px 12px;border-radius:20px;margin-bottom:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;font-family:var(--mono);}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow);}
+.ct{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cs{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+/* ── KPI cards ── */
+.kr{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kr5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+.kc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kc.inc::before{background:var(--blue);}
+.kc.cst::before{background:var(--orange);}
+.kc.prf::before{background:var(--teal);}
+.kc.mrg::before{background:var(--purple);}
+.kc.dng::before{background:var(--red);}
+.kc.inf::before{background:var(--teal2);}
+.kl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-family:var(--mono);}
+.kv{font-size:26px;font-weight:800;color:var(--text);font-family:var(--mono);}
+.ks{font-size:11px;color:var(--muted);margin-top:4px;}
+.kd{font-size:11px;font-weight:700;margin-top:4px;font-family:var(--mono);}
+
+/* ── Table ── */
+.dt{width:100%;border-collapse:collapse;font-size:12.5px;}
+.dt th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);font-family:var(--mono);}
+.dt td{padding:10px 12px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;}
+.dt tr:hover{background:rgba(65,2,112,0.03);}
+
+/* ── Status badges ── */
+.sb{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:var(--mono);}
+.sb.cr{background:rgba(217,45,85,0.1);color:var(--red);}
+.sb.ar{background:rgba(255,153,0,0.1);color:var(--orange);}
+.sb.ab{background:rgba(0,168,128,0.1);color:var(--teal);}
+
+/* ── Chart wrapper ── */
+.cw{position:relative;}
+
+/* ── Note block ── */
+.nb{background:rgba(255,153,0,0.05);border:1px solid rgba(255,153,0,0.2);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:20px;font-size:12px;color:var(--muted);}
+.nb strong{color:var(--orange);}
+
+/* ── Filter bar ── */
+.fb-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.fb-bar select{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;font-size:12px;color:var(--muted);font-family:var(--font);cursor:pointer;}
+.fb-bar label{font-size:11px;color:var(--muted);font-weight:600;}
+
+/* ── Loading / error states ── */
+.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;color:var(--muted);font-family:var(--mono);font-size:12px;gap:10px;text-align:center;}
+.state-box .icon{font-size:32px;}
+.state-box .title{font-weight:700;color:var(--text);}
+.state-box code{background:var(--bg3);padding:4px 10px;border-radius:6px;font-size:11px;}
+
+/* ── Funnel ── */
+.funnel{display:flex;flex-direction:column;gap:4px;padding:8px 0;}
+.funnel-step{display:flex;align-items:center;gap:12px;}
+.funnel-bar-wrap{flex:1;background:var(--bg3);border-radius:4px;height:28px;overflow:hidden;}
+.funnel-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 10px;transition:width .6s ease;}
+.funnel-label{font-size:11px;font-weight:700;color:white;font-family:var(--mono);}
+.funnel-meta{width:120px;text-align:right;font-size:11px;font-family:var(--mono);color:var(--muted);flex-shrink:0;}
+
+/* ── Refresh badge ── */
+.refresh-info{font-size:10px;color:rgba(255,255,255,0.25);font-family:var(--mono);margin-top:8px;}
+
+/* ── Trend delta chip ── */
+.delta-up{color:var(--teal);font-family:var(--mono);font-size:11px;font-weight:700;}
+.delta-dn{color:var(--red);font-family:var(--mono);font-size:11px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h2>Digital Forms</h2>
+    <p>LinkedIn · Thought Leadership Ads</p>
+    <div class="li-badge">⚡ TL ADS REPORT</div>
+  </div>
+  <div class="nav-list">
+    <div class="nav-group">Reports</div>
+    <div class="nav-item active" data-page="overview" onclick="showPage('overview')">
+      <span class="nn">1</span>Overview
+    </div>
+    <div class="nav-item" data-page="efficiency" onclick="showPage('efficiency')">
+      <span class="nn">2</span>Efficiency
+    </div>
+    <div class="nav-item" data-page="campaigns" onclick="showPage('campaigns')">
+      <span class="nn">3</span>Campaigns
+    </div>
+    <div class="nav-item" data-page="ads" onclick="showPage('ads')">
+      <span class="nn">4</span>Individual Ads
+    </div>
+    <div class="nav-item" data-page="funnel" onclick="showPage('funnel')">
+      <span class="nn">5</span>Funnel
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    LinkedIn Marketing API v2<br>
+    DF Brand v1.0 · TL Ads only<br>
+    <div class="refresh-info" id="fetchedAt">—</div>
+  </div>
+</nav>
+
+<!-- ── Main content ── -->
+<div class="main">
+
+  <!-- Persistent banner area (outside .page divs so navigation can't wipe it) -->
+  <div id="persistent-banner"></div>
+
+  <!-- Page 1: Overview -->
+  <div class="page active" id="page-overview"></div>
+
+  <!-- Page 2: Efficiency -->
+  <div class="page" id="page-efficiency"></div>
+
+  <!-- Page 3: Campaigns -->
+  <div class="page" id="page-campaigns"></div>
+
+  <!-- Page 4: Individual Ads -->
+  <div class="page" id="page-ads"></div>
+
+  <!-- Page 5: Funnel -->
+  <div class="page" id="page-funnel"></div>
+
+</div>
+
+<script>
+// ── Color constants (match Dashboard_Ideal_State.html) ─────────────────────
+const C={
+  p:'#410270',p2:'#5a0a94',p3:'#2d0150',
+  t:'#00A880',t2:'#00C99A',
+  r:'#D92D55',o:'#FF9900',b:'#0EA5E9',
+  m:'#8a7a9a',tx:'#2d0150',
+  li:'#0077B5',  // LinkedIn blue
+  tA:'rgba(0,168,128,',bA:'rgba(14,165,233,',
+  rA:'rgba(217,45,85,',oA:'rgba(255,153,0,',
+  pA:'rgba(65,2,112,',liA:'rgba(0,119,181,'
+};
+const gc='#f2eaf8';
+const tf={size:10,family:"'Mulish',sans-serif"};
+const tc='#8a7a9a';
+Chart.defaults.responsive=true;
+Chart.defaults.maintainAspectRatio=false;
+Chart.defaults.font.family="'Mulish',sans-serif";
+Chart.defaults.color='#8a7a9a';
+
+// ── Data loading ─────────────────────────────────────────────────────────────
+let DATA = null;
+let LOAD_ERROR = null;
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RAW DATA (date × ad granularity) — sourced from CSV export 2026-05-08
+//  All summary/per-ad/daily numbers below are derived from this array.
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+//  DATA SOURCE — populated from data/linkedin_ads.json on page load.
+//  See fetch_linkedin_ads.py + .github/workflows/refresh.yml for the pipeline.
+// ═══════════════════════════════════════════════════════════════════════════
+let RAW_ROWS    = [];
+let SOURCE_META = { fullRange: { start: '', end: '' } };
+let AD_TEXT     = {};
+
+// Compute the full DATA object for a given date range (inclusive on both ends).
+function computeData(startDate, endDate) {
+  const inRange = RAW_ROWS.filter(r => r.date >= startDate && r.date <= endDate);
+
+  // Totals
+  const T = inRange.reduce((a, r) => ({
+    impressions: a.impressions + r.impressions,
+    clicks:      a.clicks      + r.clicks,
+    lpClicks:    a.lpClicks    + r.lpClicks,
+    spend:       +(a.spend     + r.spend).toFixed(2),
+  }), {impressions:0, clicks:0, lpClicks:0, spend:0});
+
+  // Per-ad aggregation
+  const adMap = new Map();
+  for (const r of inRange) {
+    if (!adMap.has(r.adId)) {
+      adMap.set(r.adId, {
+        id: r.adId,
+        name: AD_TEXT[r.adId] || `Ad ${r.adId}`,
+        impressions: 0, clicks: 0, landingPageClicks: 0, spend: 0,
+        conversions: 0, leadGenConversions: 0, websiteConversions: 0,
+      });
+    }
+    const a = adMap.get(r.adId);
+    a.impressions       += r.impressions;
+    a.clicks            += r.clicks;
+    a.landingPageClicks += r.lpClicks;
+    a.spend              = +(a.spend + r.spend).toFixed(2);
+  }
+  const ads = [...adMap.values()].map(a => ({
+    ...a,
+    ctr:               a.impressions ? +(a.clicks/a.impressions*100).toFixed(2)   : 0,
+    realCtr:           a.impressions ? +(a.landingPageClicks/a.impressions*100).toFixed(2) : 0,
+    engToVisit:        a.clicks      ? +(a.landingPageClicks/a.clicks*100).toFixed(2)      : 0,
+    costPerEngagement: a.clicks            ? +(a.spend/a.clicks).toFixed(2)            : null,
+    costPerLpVisit:    a.landingPageClicks ? +(a.spend/a.landingPageClicks).toFixed(2) : null,
+  })).sort((x,y) => y.impressions - x.impressions);
+
+  // Daily trend
+  const dayMap = new Map();
+  for (const r of inRange) {
+    if (!dayMap.has(r.date)) {
+      dayMap.set(r.date, {date: r.date, impressions:0, clicks:0, landingPageClicks:0, spend:0, conversions:0});
+    }
+    const d = dayMap.get(r.date);
+    d.impressions       += r.impressions;
+    d.clicks            += r.clicks;
+    d.landingPageClicks += r.lpClicks;
+    d.spend              = +(d.spend + r.spend).toFixed(2);
+  }
+  const dailyTrend = [...dayMap.values()]
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .map(d => ({
+      ...d,
+      ctr:     d.impressions ? +(d.clicks/d.impressions*100).toFixed(2) : 0,
+      realCtr: d.impressions ? +(d.landingPageClicks/d.impressions*100).toFixed(2) : 0,
+    }));
+
+  return {
+    meta: {
+      ...SOURCE_META,
+      dateRange:    { start: startDate, end: endDate },
+      campaignCount: 1,
+      adCount:       ads.length,
+    },
+    summary: {
+      impressions:        T.impressions,
+      clicks:             T.clicks,
+      landingPageClicks:  T.lpClicks,
+      spend:              T.spend,
+      leadGenConversions: 0,
+      websiteConversions: 0,
+      conversions:        0,
+      ctr:                T.impressions ? +(T.clicks/T.impressions*100).toFixed(2)   : 0,
+      realCtr:            T.impressions ? +(T.lpClicks/T.impressions*100).toFixed(2) : 0,
+      engToVisit:         T.clicks      ? +(T.lpClicks/T.clicks*100).toFixed(2)      : 0,
+      engagementRate:     T.impressions ? +(T.clicks/T.impressions*100).toFixed(2)   : 0,
+      costPerEngagement:  T.clicks   ? +(T.spend/T.clicks).toFixed(2)   : null,
+      costPerLpVisit:     T.lpClicks ? +(T.spend/T.lpClicks).toFixed(2) : null,
+      costPerConversion:  null,
+    },
+    campaigns: [{
+      id: "908306483", name: "Czarek TLA", status: "ACTIVE",
+      impressions: T.impressions, clicks: T.clicks, landingPageClicks: T.lpClicks, spend: T.spend,
+      leadGenConversions: 0, websiteConversions: 0, conversions: 0,
+      ctr:               T.impressions ? +(T.clicks/T.impressions*100).toFixed(2)   : 0,
+      realCtr:           T.impressions ? +(T.lpClicks/T.impressions*100).toFixed(2) : 0,
+      costPerEngagement: T.clicks   ? +(T.spend/T.clicks).toFixed(2)   : null,
+      costPerLpVisit:    T.lpClicks ? +(T.spend/T.lpClicks).toFixed(2) : null,
+    }],
+    ads,
+    dailyTrend,
+  };
+}
+
+async function loadData() {
+  // Cache-bust so a fresh CI run is visible without a hard refresh.
+  const url = 'data/linkedin_ads.json?_=' + Date.now();
+  let payload;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    payload = await resp.json();
+  } catch(e) {
+    console.error('[dashboard] could not load data/linkedin_ads.json:', e);
+    showFatalError(e.message || String(e));
+    return;
+  }
+
+  // Validate the payload before assigning
+  if (!payload || !Array.isArray(payload.rawRows) || !payload.meta) {
+    showFatalError('linkedin_ads.json is malformed (missing rawRows or meta).');
+    return;
+  }
+  if (payload.rawRows.length === 0) {
+    showFatalError('linkedin_ads.json contains no rows. Check the GitHub Action logs.');
+    return;
+  }
+
+  RAW_ROWS    = payload.rawRows;
+  AD_TEXT     = payload.adText || {};
+  SOURCE_META = {
+    ...payload.meta,
+    // Derive fullRange from actual data so the date pickers can't pick days
+    // outside what's present in the file.
+    fullRange: payload.meta.fullRange || {
+      start: payload.rawRows.reduce((a,r) => r.date < a ? r.date : a, payload.rawRows[0].date),
+      end:   payload.rawRows.reduce((a,r) => r.date > a ? r.date : a, payload.rawRows[0].date),
+    },
+  };
+
+  // Initial load: full data range
+  applyDateFilter(SOURCE_META.fullRange.start, SOURCE_META.fullRange.end);
+}
+
+function showFatalError(reason) {
+  const banner = document.getElementById('persistent-banner');
+  if (banner) {
+    banner.innerHTML = `
+      <div style="margin:0;padding:18px 22px;background:#FEF2F2;
+                  border:2px solid #D92D55;border-radius:8px;color:#7A0F2D">
+        <div style="font-weight:800;font-size:15px;margin-bottom:6px">
+          ⚠ Couldn't load LinkedIn data
+        </div>
+        <div style="font-size:12px;line-height:1.6">
+          Reason: <code style="background:#fff;padding:1px 5px;border-radius:3px">${reason}</code><br><br>
+          If this is the first time loading after deployment, the GitHub Action
+          may still be running its first fetch — check the Actions tab in your
+          repository. If the latest run failed, click into it to see the error log.<br><br>
+          You can also trigger a manual refresh: <em>repository → Actions → "Refresh LinkedIn data" → Run workflow</em>.
+        </div>
+      </div>`;
+  }
+}
+
+let CURRENT_PAGE = 'overview';
+
+function applyDateFilter(startDate, endDate) {
+  // Clamp to data bounds
+  if (startDate < SOURCE_META.fullRange.start) startDate = SOURCE_META.fullRange.start;
+  if (endDate   > SOURCE_META.fullRange.end)   endDate   = SOURCE_META.fullRange.end;
+  if (startDate > endDate) startDate = endDate;
+
+  DATA = computeData(startDate, endDate);
+
+  // Sync the date inputs (in case user clicked a preset)
+  const startEl = document.getElementById('flt-start');
+  const endEl   = document.getElementById('flt-end');
+  if (startEl) startEl.value = startDate;
+  if (endEl)   endEl.value   = endDate;
+
+  // Snapshot footer label
+  const fa = document.getElementById('fetchedAt');
+  if (fa) {
+    const d = new Date(SOURCE_META.fetchedAt);
+    fa.textContent = 'CSV: ' + d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  }
+
+  renderFilterBanner();
+  buildPage(CURRENT_PAGE);
+}
+
+function setPreset(days) {
+  // "All" → full range; integer N → last N days ending at full-range end
+  const fullEnd = SOURCE_META.fullRange.end;
+  if (days === 'all') {
+    applyDateFilter(SOURCE_META.fullRange.start, fullEnd);
+    return;
+  }
+  const end = new Date(fullEnd);
+  const start = new Date(fullEnd);
+  start.setDate(start.getDate() - (days - 1));
+  applyDateFilter(start.toISOString().slice(0,10), fullEnd);
+}
+
+function renderFilterBanner() {
+  const adCount      = DATA.ads.length;
+  const dayCount     = DATA.dailyTrend.length;
+  const fullStart    = new Date(SOURCE_META.fullRange.start);
+  const fullEnd      = new Date(SOURCE_META.fullRange.end);
+  const totalDays    = Math.round((fullEnd - fullStart) / (1000*60*60*24)) + 1;
+  const isFull       = DATA.meta.dateRange.start === SOURCE_META.fullRange.start
+                    && DATA.meta.dateRange.end   === SOURCE_META.fullRange.end;
+  const fullText     = isFull ? `all ${totalDays} days` : `${dayCount} of ${totalDays} days`;
+
+  // Friendly "X hours ago" label for last data refresh
+  let freshness = '';
+  if (SOURCE_META.fetchedAt) {
+    const ms     = Date.now() - new Date(SOURCE_META.fetchedAt).getTime();
+    const hours  = Math.floor(ms / (1000*60*60));
+    const days   = Math.floor(hours / 24);
+    if      (hours < 1)   freshness = 'just now';
+    else if (hours < 24)  freshness = `${hours}h ago`;
+    else if (days  < 7)   freshness = `${days}d ago`;
+    else                  freshness = new Date(SOURCE_META.fetchedAt)
+      .toLocaleDateString('en-GB', {day:'2-digit', month:'short'});
+  }
+  const stale = freshness.endsWith('d ago') && parseInt(freshness) >= 3;
+
+  document.getElementById('persistent-banner').innerHTML = `
+    <div style="margin:0 0 16px 0;padding:12px 14px;background:#fff;border:1px solid #e9deef;
+                border-radius:8px;display:flex;flex-wrap:wrap;align-items:center;gap:14px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:600">
+        📅 Date range
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="date" id="flt-start"
+               min="${SOURCE_META.fullRange.start}" max="${SOURCE_META.fullRange.end}"
+               value="${DATA.meta.dateRange.start}"
+               onchange="applyDateFilter(this.value, document.getElementById('flt-end').value)"
+               style="padding:5px 8px;border:1px solid #d4c5db;border-radius:4px;font-size:12px;font-family:var(--mono)">
+        <span style="color:var(--muted)">→</span>
+        <input type="date" id="flt-end"
+               min="${SOURCE_META.fullRange.start}" max="${SOURCE_META.fullRange.end}"
+               value="${DATA.meta.dateRange.end}"
+               onchange="applyDateFilter(document.getElementById('flt-start').value, this.value)"
+               style="padding:5px 8px;border:1px solid #d4c5db;border-radius:4px;font-size:12px;font-family:var(--mono)">
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${[7, 14, 30].map(n => `
+          <button onclick="setPreset(${n})"
+                  style="padding:5px 10px;font-size:11px;background:${dayCount===n?'#410270':'#f7f1fa'};
+                         color:${dayCount===n?'#fff':'#410270'};border:1px solid #410270;
+                         border-radius:4px;cursor:pointer;font-weight:600">Last ${n}d</button>
+        `).join('')}
+        <button onclick="setPreset('all')"
+                style="padding:5px 10px;font-size:11px;background:${isFull?'#410270':'#f7f1fa'};
+                       color:${isFull?'#fff':'#410270'};border:1px solid #410270;
+                       border-radius:4px;cursor:pointer;font-weight:600">All</button>
+      </div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted);text-align:right;line-height:1.4">
+        Showing ${adCount} ${adCount===1?'ad':'ads'} over ${fullText}<br>
+        <span style="font-size:10px;${stale?'color:#D92D55;font-weight:700':''}">
+          Data refreshed ${freshness}${stale?' ⚠ stale':''}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function showPage(id) {
+  CURRENT_PAGE = id;
+  Object.values(Chart.instances).forEach(c => c.destroy());
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+  window.scrollTo(0,0);
+  requestAnimationFrame(() => requestAnimationFrame(() => buildPage(id)));
+}
+
+function buildPage(id) {
+  if (!DATA) return;
+  // Always nuke any existing chart instances before re-rendering — without this,
+  // the date filter would create duplicate canvases and Chart.js would throw.
+  Object.values(Chart.instances).forEach(c => c.destroy());
+  switch(id) {
+    case 'overview':   buildOverview();   break;
+    case 'efficiency': buildEfficiency(); break;
+    case 'campaigns':  buildCampaigns();  break;
+    case 'ads':        buildAds();        break;
+    case 'funnel':     buildFunnel();     break;
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function cw(id, h=260) {
+  return `<div class="cw" style="height:${h}px"><canvas id="${id}"></canvas></div>`;
+}
+function fmt(n, decimals=0) {
+  if (n === null || n === undefined) return '—';
+  if (typeof n === 'string') return n;
+  return Number(n).toLocaleString('en-GB', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '—';
+  return Number(n).toFixed(2) + '%';
+}
+function ccySym(code) {
+  return ({PLN:'zł', USD:'$', EUR:'€', GBP:'£'})[code] || code || '';
+}
+function fmtCcy(n, currency='') {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  const sym = ccySym(currency);
+  const num = Number(n).toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return sym ? `${num} ${sym}` : num;
+}
+function kpi(label, value, sub, colorClass='inf') {
+  return `<div class="kc ${colorClass}">
+    <div class="kl">${label}</div>
+    <div class="kv">${value}</div>
+    ${sub ? `<div class="ks">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ── Page 1: Overview ──────────────────────────────────────────────────────────
+function buildOverview() {
+  const el = document.getElementById('page-overview');
+  const s  = DATA.summary;
+  const m  = DATA.meta;
+  const trend = DATA.dailyTrend || [];
+  const currency = m?.currency || '';
+
+  el.innerHTML = `
+    <div class="tag">Thought Leadership Ads</div>
+    <h1>Campaign Overview</h1>
+    <p class="ps">${m?.dateRange?.start || ''} → ${m?.dateRange?.end || ''} · ${m?.accountName || 'LinkedIn Ads'} · ${m?.campaignCount || 0} campaigns</p>
+
+    <div class="kr5">
+      ${kpi('Impressions',    fmt(s.impressions),        'Total ad views',              'inf')}
+      ${kpi('Clicks',         fmt(s.clicks),             'All click types',             'inc')}
+      ${kpi('LP Clicks',      fmt(s.landingPageClicks),  'Landing page visits',         'prf')}
+      ${kpi('CTR',            fmtPct(s.ctr),             'Clicks ÷ impressions',        'mrg')}
+      ${kpi('Real CTR',       fmtPct(s.realCtr),         'LP clicks ÷ impressions',     'dng')}
+    </div>
+
+    <div class="nb">
+      <strong>Real CTR vs CTR</strong> — LinkedIn's headline CTR counts all click types (profile, hashtag, see-more). 
+      Real CTR is landing page clicks ÷ impressions — the honest signal for TL Ad effectiveness.
+      ${s.ctr && s.realCtr ? `Your Real CTR is <strong>${(s.realCtr/s.ctr*100).toFixed(0)}%</strong> of headline CTR.` : ''}
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Impressions & Landing Page Clicks — Daily</div>
+        <div class="cs">Volume trend over the selected period</div>
+        ${cw('ov_trend', 240)}
+      </div>
+      <div class="card">
+        <div class="ct">CTR vs Real CTR — Daily</div>
+        <div class="cs">How much of your click-through actually reaches your landing page</div>
+        ${cw('ov_ctr', 240)}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Daily Spend</div>
+      <div class="cs">Budget pacing across the period</div>
+      ${cw('ov_spend', 180)}
+    </div>
+  `;
+
+  if (!trend.length) return;
+
+  const labels = trend.map(d => d.date.slice(5)); // MM-DD
+  const impr   = trend.map(d => d.impressions);
+  const lpc    = trend.map(d => d.landingPageClicks);
+  const ctrD   = trend.map(d => d.ctr);
+  const rctrD  = trend.map(d => d.realCtr);
+  const spend  = trend.map(d => d.spend);
+
+  new Chart(document.getElementById('ov_trend'), {
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Impressions', data:impr, borderColor:C.b, backgroundColor:C.bA+'0.08)', borderWidth:2, tension:.3, fill:true, pointRadius:2, yAxisID:'y'},
+      {label:'LP Clicks',   data:lpc,  borderColor:C.t2,backgroundColor:C.tA+'0.08)', borderWidth:2, tension:.3, fill:true, pointRadius:2, yAxisID:'y1'},
+    ]},
+    options:{plugins:{legend:{labels:{color:tc,usePointStyle:true,pointStyle:'circle',font:{size:11}}}},
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:tf,maxTicksLimit:12}},
+        y:{grid:{color:gc},ticks:{color:tc,font:tf},title:{display:true,text:'Impressions',color:tc,font:tf}},
+        y1:{position:'right',grid:{display:false},ticks:{color:C.t2,font:tf},title:{display:true,text:'LP Clicks',color:C.t2,font:tf}},
+      }}
+  });
+
+  new Chart(document.getElementById('ov_ctr'), {
+    type:'line',
+    data:{labels, datasets:[
+      {label:'CTR %',      data:ctrD,  borderColor:C.p2,  backgroundColor:C.pA+'0.06)', borderWidth:2, tension:.3, fill:true, pointRadius:2},
+      {label:'Real CTR %', data:rctrD, borderColor:C.r,   backgroundColor:C.rA+'0.06)', borderWidth:2, tension:.3, fill:true, pointRadius:2},
+    ]},
+    options:{plugins:{legend:{labels:{color:tc,usePointStyle:true,pointStyle:'circle',font:{size:11}}}},
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:tf,maxTicksLimit:12}},
+        y:{grid:{color:gc},ticks:{color:tc,font:tf,callback:v=>v+'%'}},
+      }}
+  });
+
+  new Chart(document.getElementById('ov_spend'), {
+    type:'bar',
+    data:{labels, datasets:[
+      {label:`Spend (${ccySym(currency)})`, data:spend, backgroundColor:C.liA+'0.5)', borderColor:C.li, borderWidth:1, borderRadius:3},
+    ]},
+    options:{plugins:{legend:{labels:{color:tc,font:{size:11}}}},
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:tf,maxTicksLimit:12}},
+        y:{grid:{color:gc},ticks:{color:tc,font:tf,callback:v=>`${v} ${ccySym(currency)}`}},
+      }}
+  });
+}
+
+// ── Page 2: Efficiency ────────────────────────────────────────────────────────
+function buildEfficiency() {
+  const el = document.getElementById('page-efficiency');
+  const s  = DATA.summary;
+  const m  = DATA.meta;
+  const currency = m?.currency || '';
+  const sym = ccySym(currency);
+  const noConv = !s.conversions && !s.leadGenConversions && !s.websiteConversions;
+
+  el.innerHTML = `
+    <div class="tag">Thought Leadership Ads</div>
+    <h1>Cost Efficiency</h1>
+    <p class="ps">Cost per action breakdown — ${m?.dateRange?.start || ''} → ${m?.dateRange?.end || ''}</p>
+
+    <div class="kr">
+      ${kpi('Total Spend',       fmtCcy(s.spend, currency),            `${sym} budget consumed`,        'cst')}
+      ${kpi('Cost / Engagement', fmtCcy(s.costPerEngagement, currency), 'Per click engagement',          'cst')}
+      ${kpi('Cost / LP Visit',   fmtCcy(s.costPerLpVisit, currency),    'Per landing page click',        'cst')}
+      ${kpi('Cost / Conversion', noConv ? 'Not tracked' : fmtCcy(s.costPerConversion, currency),
+                                 noConv ? 'No Insight Tag / Lead Gen forms' : 'Per lead or website conversion',
+                                 noConv ? 'inf' : 'dng')}
+    </div>
+
+    <div class="kr">
+      ${kpi('Conversions (Total)', noConv ? 'Not tracked' : fmt(s.conversions),
+                                   noConv ? 'Set up tracking to measure'  : 'Lead gen + website',  noConv ? 'inf' : 'prf')}
+      ${kpi('Lead Gen Forms',      noConv ? '—' : fmt(s.leadGenConversions),    'LinkedIn form fills',     'prf')}
+      ${kpi('Website Conversions', noConv ? '—' : fmt(s.websiteConversions),    'Via Insight Tag',         'prf')}
+      ${kpi('Engagement Rate',     fmtPct(s.engagementRate),                    'Clicks ÷ impressions',    'inf')}
+    </div>
+
+    ${noConv ? `
+    <div class="nb" style="border-left-color:var(--blue);background:rgba(14,165,233,0.06)">
+      <strong>No conversion tracking detected.</strong> These campaigns aren't generating
+      LinkedIn Lead Gen form fills or Insight Tag conversions, so the Cost / Conversion
+      metric isn't meaningful here. To track downstream actions, install the LinkedIn
+      Insight Tag on your landing page or attach a Lead Gen form to the campaign.
+    </div>` : ''}
+
+    <div class="card">
+      <div class="ct">Cost per LP Visit by Campaign</div>
+      <div class="cs">Lower is better. Sorted ascending — best performers on left.</div>
+      ${cw('eff_cplp', 220)}
+    </div>
+
+    <div class="nb">
+      <strong>Cost per LP Visit vs Cost per Engagement</strong> — LinkedIn's "engagement" includes 
+      reactions, comments, shares, and profile clicks on TL Ads — not just landing page visits. 
+      Cost per LP Visit is the more meaningful efficiency metric for content driving traffic.
+    </div>
+  `;
+
+  const camps = (DATA.campaigns || [])
+    .filter(c => c.landingPageClicks > 0)
+    .sort((a,b) => (a.costPerLpVisit||999) - (b.costPerLpVisit||999));
+
+  if (!camps.length) return;
+
+  const labels  = camps.map(c => c.name.length > 22 ? c.name.slice(0,22)+'…' : c.name);
+  const cplpVals = camps.map(c => c.costPerLpVisit);
+  const cpeVals  = camps.map(c => c.costPerEngagement);
+
+  new Chart(document.getElementById('eff_cplp'), {
+    type:'bar',
+    data:{labels, datasets:[
+      {label:`Cost / LP Visit (${sym})`,   data:cplpVals, backgroundColor:C.liA+'0.55)', borderColor:C.li,  borderWidth:1, borderRadius:4},
+      {label:`Cost / Engagement (${sym})`, data:cpeVals,  backgroundColor:C.pA+'0.3)',   borderColor:C.p2,  borderWidth:1, borderRadius:4},
+    ]},
+    options:{plugins:{legend:{labels:{color:tc,usePointStyle:true,pointStyle:'circle',font:{size:11}}}},
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:tf}},
+        y:{grid:{color:gc},ticks:{color:tc,font:tf,callback:v=>`${v} ${sym}`}},
+      }}
+  });
+}
+
+// ── Page 3: Campaigns ─────────────────────────────────────────────────────────
+function buildCampaigns() {
+  const el = document.getElementById('page-campaigns');
+  const m  = DATA.meta;
+  const currency = m?.currency || '';
+  const camps = DATA.campaigns || [];
+
+  const sortedCamps = [...camps].sort((a,b) => (b.realCtr||0) - (a.realCtr||0));
+
+  const rows = sortedCamps.map(c => {
+    const status = c.status === 'ACTIVE' ? 'ab' : c.status === 'PAUSED' ? 'ar' : 'cr';
+    const statusLabel = c.status === 'ACTIVE' ? 'Active' : c.status === 'PAUSED' ? 'Paused' : c.status || '—';
+    return `<tr>
+      <td style="font-weight:600;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</td>
+      <td><span class="sb ${status}">${statusLabel}</span></td>
+      <td style="font-family:var(--mono)">${fmt(c.impressions)}</td>
+      <td style="font-family:var(--mono)">${fmt(c.clicks)}</td>
+      <td style="font-family:var(--mono)">${fmt(c.landingPageClicks)}</td>
+      <td style="font-family:var(--mono);color:var(--muted)">${fmtPct(c.ctr)}</td>
+      <td style="font-family:var(--mono);color:var(--red);font-weight:700">${fmtPct(c.realCtr)}</td>
+      <td style="font-family:var(--mono)">${fmtCcy(c.spend, currency)}</td>
+      <td style="font-family:var(--mono)">${fmtCcy(c.costPerLpVisit, currency)}</td>
+      <td style="font-family:var(--mono);color:var(--teal);font-weight:700">${fmt(c.conversions)}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="tag">Thought Leadership Ads</div>
+    <h1>Campaign Breakdown</h1>
+    <p class="ps">All ${camps.length} Thought Leader Ad campaigns · sorted by Real CTR (best first)</p>
+
+    <div class="card">
+      <div class="ct">Campaign Performance Table</div>
+      <div class="cs">Click any column header to sort · Real CTR = LP clicks ÷ impressions</div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Status</th>
+              <th>Impressions</th>
+              <th>Clicks</th>
+              <th>LP Clicks</th>
+              <th>CTR</th>
+              <th>Real CTR ↓</th>
+              <th>Spend</th>
+              <th>CPL Visit</th>
+              <th>Conversions</th>
+            </tr>
+          </thead>
+          <tbody>${rows || '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--muted)">No campaign data</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Impressions by Campaign</div>
+        <div class="cs">Share of total TL Ads impressions</div>
+        ${cw('camp_impr', 220)}
+      </div>
+      <div class="card">
+        <div class="ct">Spend by Campaign</div>
+        <div class="cs">Budget distribution across campaigns</div>
+        ${cw('camp_spend', 220)}
+      </div>
+    </div>
+  `;
+
+  if (!camps.length) return;
+
+  const labels    = camps.map(c => c.name.length > 18 ? c.name.slice(0,18)+'…' : c.name);
+  const imprVals  = camps.map(c => c.impressions);
+  const spendVals = camps.map(c => c.spend);
+  const palette   = [C.li, C.t2, C.o, C.p2, C.r, C.b, C.t, C.p];
+
+  new Chart(document.getElementById('camp_impr'), {
+    type:'doughnut',
+    data:{labels, datasets:[{data:imprVals, backgroundColor:palette.map(x=>x+'cc'), borderColor:palette, borderWidth:1}]},
+    options:{plugins:{legend:{position:'right',labels:{color:tc,font:{size:10},usePointStyle:true,pointStyle:'circle'}}}}
+  });
+
+  new Chart(document.getElementById('camp_spend'), {
+    type:'doughnut',
+    data:{labels, datasets:[{data:spendVals, backgroundColor:palette.map(x=>x+'cc'), borderColor:palette, borderWidth:1}]},
+    options:{plugins:{legend:{position:'right',labels:{color:tc,font:{size:10},usePointStyle:true,pointStyle:'circle'}}}}
+  });
+}
+
+// ── Page 4: Individual Ads ───────────────────────────────────────────────────
+function buildAds() {
+  const el = document.getElementById('page-ads');
+  const m  = DATA.meta;
+  const currency = m?.currency || '';
+  const ads = DATA.ads || [];
+
+  if (!ads.length) {
+    el.innerHTML = `
+      <div class="tag">Thought Leadership Ads</div>
+      <h1>Individual Ad Performance</h1>
+      <div class="state-box">
+        <div class="icon">📭</div>
+        <div class="title">No ad-level data yet</div>
+        <p>Re-run the fetch script — creative-level analytics require the Advertising API approval to be fully active.</p>
+      </div>`;
+    return;
+  }
+
+  // Sort table by impressions desc by default; allow JS re-sort
+  let sortKey = 'impressions';
+  let sortDir = -1;
+
+  const noConv = !DATA.summary.conversions && !DATA.summary.leadGenConversions && !DATA.summary.websiteConversions;
+
+  function renderTable(sorted) {
+    return sorted.map((a, i) => {
+      const rank = i + 1;
+      const rankColor = rank === 1 ? C.t2 : rank === 2 ? C.t : rank <= 3 ? C.b : C.m;
+      // Engagement → Visit: of the people who engaged (clicks), how many
+      // actually went to the landing page (LP clicks). Color-code: green for
+      // strong conversion (≥5%), amber for marginal (1-5%), grey for zero.
+      const e2v = a.engToVisit;
+      const e2vColor = e2v >= 5  ? C.t
+                     : e2v >= 1  ? '#D97706'   // amber-600
+                     :             'var(--muted)';
+      const e2vWeight = e2v >= 1 ? '700' : '400';
+      return `<tr>
+        <td style="font-family:var(--mono);color:${rankColor};font-weight:800;text-align:center">${rank}</td>
+        <td style="max-width:260px">
+          <div style="font-weight:600;color:var(--text);font-size:13px;line-height:1.4;white-space:normal">${a.name}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">ID: ${a.id}</div>
+        </td>
+        <td style="font-family:var(--mono)">${fmt(a.impressions)}</td>
+        <td style="font-family:var(--mono)">${fmt(a.clicks)}</td>
+        <td style="font-family:var(--mono)">${fmt(a.landingPageClicks)}</td>
+        <td style="font-family:var(--mono);color:var(--muted)">${fmtPct(a.ctr)}</td>
+        <td style="font-family:var(--mono);color:${C.r};font-weight:700">${fmtPct(a.realCtr)}</td>
+        <td style="font-family:var(--mono);color:${e2vColor};font-weight:${e2vWeight}">${fmtPct(e2v)}</td>
+        <td style="font-family:var(--mono)">${fmtCcy(a.spend, currency)}</td>
+        <td style="font-family:var(--mono)">${fmtCcy(a.costPerLpVisit, currency)}</td>
+        <td style="font-family:var(--mono);color:${noConv ? 'var(--muted)' : C.t};font-weight:${noConv ? '400' : '700'}">${noConv ? '—' : fmt(a.conversions)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  el.innerHTML = `
+    <div class="tag">Thought Leadership Ads</div>
+    <h1>Individual Ad Performance</h1>
+    <p class="ps">${ads.length} ads · ${m?.dateRange?.start || ''} → ${m?.dateRange?.end || ''} · sorted by impressions</p>
+
+    <div class="card">
+      <div class="ct">Ad-Level Breakdown</div>
+      <div class="cs">Each row = one Cezary post · click column headers to sort · <strong>Eng → Visit</strong> = of engaged users (clicks), what % actually went to the landing page</div>
+      <div style="overflow-x:auto">
+        <table class="dt" id="ads-table">
+          <thead>
+            <tr>
+              <th style="width:36px;text-align:center">#</th>
+              <th style="cursor:pointer" onclick="sortAdsTable('name')">Ad Text ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('impressions')">Impr ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('clicks')">Clicks ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('landingPageClicks')">LP Clicks ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('ctr')">CTR ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('realCtr')">Real CTR ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('engToVisit')">Eng → Visit ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('spend')">Spend ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('costPerLpVisit')">CP Visit ↕</th>
+              <th style="cursor:pointer;font-family:var(--mono)" onclick="sortAdsTable('conversions')">Conv ↕</th>
+            </tr>
+          </thead>
+          <tbody id="ads-tbody">${renderTable(ads)}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Real CTR by Ad</div>
+        <div class="cs">Top 8 ads — higher = more people actually visit the landing page</div>
+        ${cw('ads_rctr', 220)}
+      </div>
+      <div class="card">
+        <div class="ct">Impressions by Ad</div>
+        <div class="cs">How much reach each ad received</div>
+        ${cw('ads_impr', 220)}
+      </div>
+    </div>
+
+    <div class="nb">
+      <strong>Ad name = first 60 characters of the post text.</strong> If you see "Ad 123456" instead of text, 
+      the creative name couldn't be resolved from the API — the ID still uniquely identifies the ad in Campaign Manager.
+    </div>
+  `;
+
+  // Expose sort function globally for onclick handlers
+  window._adsData = ads;
+  window.sortAdsTable = function(key) {
+    const data = window._adsData;
+    const sorted = [...data].sort((a,b) => {
+      const av = a[key] ?? -Infinity;
+      const bv = b[key] ?? -Infinity;
+      return typeof av === 'string' ? av.localeCompare(bv) : bv - av;
+    });
+    document.getElementById('ads-tbody').innerHTML = renderTable(sorted);
+  };
+
+  // Charts — top 8 by impressions
+  const top8 = [...ads].sort((a,b) => b.impressions - a.impressions).slice(0, 8);
+  const labels = top8.map((a,i) => `Ad ${i+1}`); // short labels for chart
+  const palette = [C.li, C.t2, C.b, C.o, C.p2, C.r, C.t, C.p];
+
+  new Chart(document.getElementById('ads_rctr'), {
+    type: 'bar',
+    data: { labels, datasets: [{
+      label: 'Real CTR %',
+      data: top8.map(a => a.realCtr),
+      backgroundColor: palette.map(c => c + 'cc'),
+      borderColor: palette,
+      borderWidth: 1,
+      borderRadius: 4,
+    }]},
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { title: (items) => top8[items[0].dataIndex].name.slice(0,40) }}
+      },
+      scales: {
+        x: { grid:{color:gc}, ticks:{color:tc,font:tf} },
+        y: { grid:{color:gc}, ticks:{color:tc,font:tf,callback:v=>v+'%'} },
+      }
+    }
+  });
+
+  new Chart(document.getElementById('ads_impr'), {
+    type: 'bar',
+    data: { labels, datasets: [{
+      label: 'Impressions',
+      data: top8.map(a => a.impressions),
+      backgroundColor: palette.map(c => c + 'aa'),
+      borderColor: palette,
+      borderWidth: 1,
+      borderRadius: 4,
+    }]},
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { title: (items) => top8[items[0].dataIndex].name.slice(0,40) }}
+      },
+      scales: {
+        x: { grid:{color:gc}, ticks:{color:tc,font:tf} },
+        y: { grid:{color:gc}, ticks:{color:tc,font:tf} },
+      }
+    }
+  });
+}
+
+// ── Page 5: Funnel ────────────────────────────────────────────────────────────
+function buildFunnel() {
+  const el = document.getElementById('page-funnel');
+  const s  = DATA.summary;
+  const m  = DATA.meta;
+  const noConv = !s.conversions && !s.leadGenConversions && !s.websiteConversions;
+
+  const steps = [
+    {label:'Impressions',        value:s.impressions,       color:C.li, pct:100},
+    {label:'Clicks',             value:s.clicks,            color:C.b,  pct: s.impressions ? (s.clicks/s.impressions*100) : 0},
+    {label:'Landing Page Clicks',value:s.landingPageClicks, color:C.t2, pct: s.impressions ? (s.landingPageClicks/s.impressions*100) : 0},
+  ];
+  if (!noConv) {
+    steps.push({label:'Conversions', value:s.conversions, color:C.t,
+                pct: s.impressions ? (s.conversions/s.impressions*100) : 0});
+  }
+
+  const funnelRows = steps.map((step, i) => {
+    const barW = Math.max(step.pct, 2);
+    const dropOff = i > 0
+      ? `<span style="color:var(--muted);font-size:10px">${fmtPct(step.pct)} of impressions</span>`
+      : '<span style="color:var(--muted);font-size:10px">baseline</span>';
+    return `
+      <div class="funnel-step">
+        <div style="width:140px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--text)">${step.label}</div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar" style="width:${barW}%;background:${step.color}">
+            <span class="funnel-label">${fmt(step.value)}</span>
+          </div>
+        </div>
+        <div class="funnel-meta">${dropOff}</div>
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="tag">Thought Leadership Ads</div>
+    <h1>Conversion Funnel</h1>
+    <p class="ps">From impression to ${noConv ? 'landing page click' : 'conversion'} — ${m?.dateRange?.start || ''} → ${m?.dateRange?.end || ''}</p>
+
+    <div class="card">
+      <div class="ct">Full Funnel</div>
+      <div class="cs">Each bar shows the absolute number and the percentage of total impressions</div>
+      <div class="funnel" style="padding:16px 0">${funnelRows}</div>
+    </div>
+
+    <div class="g3">
+      ${kpi('Impression → Click',     fmtPct(s.ctr),     'CTR',       'inc')}
+      ${kpi('Impression → LP Visit',  fmtPct(s.realCtr), 'Real CTR',  'prf')}
+      ${kpi('LP Visit → Conversion',
+            noConv ? 'Not tracked' : fmtPct(s.landingPageClicks ? (s.conversions / s.landingPageClicks * 100) : null),
+            noConv ? 'No tracking installed' : 'Visit-to-convert',
+            noConv ? 'inf' : 'mrg')}
+    </div>
+
+    ${noConv ? `
+    <div class="nb" style="border-left-color:var(--blue);background:rgba(14,165,233,0.06)">
+      <strong>No conversion tracking detected.</strong> The funnel ends at landing page clicks
+      because these campaigns don't have LinkedIn Lead Gen forms or Insight Tag conversions
+      attached. Install the Insight Tag on your destination URL to measure downstream actions.
+    </div>` : `
+    <div class="nb">
+      <strong>Lead Gen Forms</strong> ${fmt(s.leadGenConversions)} fills ·
+      <strong>Website Conversions</strong> ${fmt(s.websiteConversions)} events (via Insight Tag) ·
+      <strong>Total</strong> ${fmt(s.conversions)}
+    </div>`}
+  `;
+}
+
+// ── Mock data (used when no JSON file exists yet) ─────────────────────────────
+function getMockData() {
+  const trend = [];
+  const base = new Date('2026-01-01');
+  for (let i = 0; i < 90; i++) {
+    const d = new Date(base);
+    d.setDate(d.getDate() + i);
+    const impr  = Math.round(800 + Math.random() * 400);
+    const clk   = Math.round(impr * (0.015 + Math.random() * 0.01));
+    const lpc   = Math.round(clk * (0.4 + Math.random() * 0.2));
+    const spend = Math.round((impr * 0.02 + Math.random() * 5) * 100) / 100;
+    trend.push({
+      date: d.toISOString().slice(0,10),
+      impressions: impr, clicks: clk, landingPageClicks: lpc,
+      spend, conversions: Math.round(lpc * 0.05),
+      ctr: parseFloat((clk/impr*100).toFixed(2)),
+      realCtr: parseFloat((lpc/impr*100).toFixed(2)),
+    });
+  }
+
+  const totImpr = trend.reduce((s,d)=>s+d.impressions, 0);
+  const totClk  = trend.reduce((s,d)=>s+d.clicks, 0);
+  const totLpc  = trend.reduce((s,d)=>s+d.landingPageClicks, 0);
+  const totSpd  = parseFloat(trend.reduce((s,d)=>s+d.spend, 0).toFixed(2));
+  const totCvr  = trend.reduce((s,d)=>s+d.conversions, 0);
+
+  return {
+    meta: {
+      fetchedAt: new Date().toISOString(),
+      accountId: 'demo', accountName: 'Demo Account', currency: 'EUR',
+      dateRange: {start:'2026-01-01', end:'2026-03-31'},
+      campaignCount: 3,
+    },
+    summary: {
+      impressions: totImpr, clicks: totClk, landingPageClicks: totLpc,
+      spend: totSpd, conversions: totCvr,
+      leadGenConversions: Math.round(totCvr * 0.6),
+      websiteConversions: Math.round(totCvr * 0.4),
+      ctr: parseFloat((totClk/totImpr*100).toFixed(2)),
+      realCtr: parseFloat((totLpc/totImpr*100).toFixed(2)),
+      engagementRate: parseFloat(((totClk+totLpc)/totImpr*100).toFixed(2)),
+      costPerEngagement: parseFloat((totSpd/totClk).toFixed(2)),
+      costPerLpVisit: parseFloat((totSpd/totLpc).toFixed(2)),
+      costPerConversion: parseFloat((totSpd/totCvr).toFixed(2)),
+    },
+    campaigns: [
+      {id:'1',name:'TL_Cezary_Manual_Wall',status:'ACTIVE',impressions:Math.round(totImpr*.45),clicks:Math.round(totClk*.5),landingPageClicks:Math.round(totLpc*.5),spend:Math.round(totSpd*.45*100)/100,conversions:Math.round(totCvr*.5),ctr:2.1,realCtr:0.9,costPerLpVisit:3.2,costPerEngagement:2.1},
+      {id:'2',name:'TL_Cezary_CDO_Gap',status:'ACTIVE',impressions:Math.round(totImpr*.35),clicks:Math.round(totClk*.35),landingPageClicks:Math.round(totLpc*.35),spend:Math.round(totSpd*.35*100)/100,conversions:Math.round(totCvr*.35),ctr:1.8,realCtr:0.7,costPerLpVisit:3.9,costPerEngagement:2.5},
+      {id:'3',name:'TL_Cezary_FHAS_Story',status:'PAUSED',impressions:Math.round(totImpr*.2),clicks:Math.round(totClk*.15),landingPageClicks:Math.round(totLpc*.15),spend:Math.round(totSpd*.2*100)/100,conversions:Math.round(totCvr*.15),ctr:1.4,realCtr:0.5,costPerLpVisit:4.8,costPerEngagement:3.1},
+    ],
+    dailyTrend: trend,
+    ads: [
+      {id:'1193855093',name:'We stopped using the phrase "digital transformation" with clients. Not because it means nothing. But by the time…',impressions:Math.round(totImpr*.18),clicks:Math.round(totClk*.20),landingPageClicks:Math.round(totLpc*.22),spend:Math.round(totSpd*.18*100)/100,conversions:Math.round(totCvr*.20),ctr:2.3,realCtr:1.1,costPerLpVisit:2.9,costPerEngagement:1.9},
+      {id:'1195167003',name:"Everyone's racing to build an AI strategy. Meanwhile, the same five systems still don't talk to each other. Dave just…",impressions:Math.round(totImpr*.16),clicks:Math.round(totClk*.17),landingPageClicks:Math.round(totLpc*.18),spend:Math.round(totSpd*.16*100)/100,conversions:Math.round(totCvr*.17),ctr:2.1,realCtr:0.9,costPerLpVisit:3.3,costPerEngagement:2.2},
+      {id:'1200419173',name:`A strategy is only as good as your ability to articulate it. If your team can't follow you in the same direction, the…`,impressions:Math.round(totImpr*.15),clicks:Math.round(totClk*.14),landingPageClicks:Math.round(totLpc*.14),spend:Math.round(totSpd*.15*100)/100,conversions:Math.round(totCvr*.15),ctr:1.9,realCtr:0.8,costPerLpVisit:3.7,costPerEngagement:2.4},
+      {id:'1211793353',name:"I spent 4 years trying to sell something I didn't yet know how to sell. Here's what that actually felt like and why I'm…",impressions:Math.round(totImpr*.14),clicks:Math.round(totClk*.13),landingPageClicks:Math.round(totLpc*.12),spend:Math.round(totSpd*.14*100)/100,conversions:Math.round(totCvr*.13),ctr:1.8,realCtr:0.7,costPerLpVisit:4.1,costPerEngagement:2.7},
+      {id:'1222909983',name:`The last three CEOs I spoke to this month all said some version of the same thing. "We've already tried this. Spent…`,impressions:Math.round(totImpr*.12),clicks:Math.round(totClk*.11),landingPageClicks:Math.round(totLpc*.10),spend:Math.round(totSpd*.12*100)/100,conversions:Math.round(totCvr*.11),ctr:1.6,realCtr:0.6,costPerLpVisit:4.6,costPerEngagement:3.0},
+      {id:'1253506543',name:"There's a specific conversation I keep having with CEOs that I find genuinely unsettling. I ask them: how long does…",impressions:Math.round(totImpr*.10),clicks:Math.round(totClk*.09),landingPageClicks:Math.round(totLpc*.08),spend:Math.round(totSpd*.10*100)/100,conversions:Math.round(totCvr*.09),ctr:1.4,realCtr:0.5,costPerLpVisit:5.2,costPerEngagement:3.3},
+    ],
+  };
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
