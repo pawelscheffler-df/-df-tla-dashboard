@@ -197,9 +197,19 @@ let RAW_ROWS    = [];
 let SOURCE_META = { fullRange: { start: '', end: '' } };
 let AD_TEXT     = {};
 
-// Compute the full DATA object for a given date range (inclusive on both ends).
-function computeData(startDate, endDate) {
-  const inRange = RAW_ROWS.filter(r => r.date >= startDate && r.date <= endDate);
+// SELECTED_ADS: null/undefined/empty Set = show all ads; else = only these IDs.
+// Kept separate from date so the ad selection persists across date changes.
+let SELECTED_ADS = null;
+
+// Compute the full DATA object for a given date range (inclusive on both ends)
+// and — optionally — a subset of ad IDs. Missing/empty selectedAds = all ads.
+function computeData(startDate, endDate, selectedAds) {
+  const hasAdFilter = selectedAds && selectedAds.size > 0;
+  const inRange = RAW_ROWS.filter(r => {
+    if (r.date < startDate || r.date > endDate) return false;
+    if (hasAdFilter && !selectedAds.has(r.adId)) return false;
+    return true;
+  });
 
   // Totals
   const T = inRange.reduce((a, r) => ({
@@ -328,6 +338,17 @@ async function loadData() {
     },
   };
 
+  // Close the ads popover on any click outside it (or on the trigger button).
+  // Registered once here rather than in renderFilterBanner so we don't stack
+  // listeners on every filter change.
+  document.addEventListener('click', (e) => {
+    const pop = document.getElementById('ads-popover');
+    const btn = document.getElementById('ads-filter-btn');
+    if (!pop || pop.style.display === 'none') return;
+    if (pop.contains(e.target) || (btn && btn.contains(e.target))) return;
+    toggleAdsPopover(false);
+  });
+
   // Initial load: full data range
   applyDateFilter(SOURCE_META.fullRange.start, SOURCE_META.fullRange.end);
 }
@@ -360,7 +381,7 @@ function applyDateFilter(startDate, endDate) {
   if (endDate   > SOURCE_META.fullRange.end)   endDate   = SOURCE_META.fullRange.end;
   if (startDate > endDate) startDate = endDate;
 
-  DATA = computeData(startDate, endDate);
+  DATA = computeData(startDate, endDate, SELECTED_ADS);
 
   // Sync the date inputs (in case user clicked a preset)
   const startEl = document.getElementById('flt-start');
@@ -377,6 +398,74 @@ function applyDateFilter(startDate, endDate) {
 
   renderFilterBanner();
   buildPage(CURRENT_PAGE);
+}
+
+// Reapply the current date range with an updated ad selection.
+// Called by every ad-checkbox interaction.
+function reapplyFilters() {
+  if (!DATA) return;
+  applyDateFilter(DATA.meta.dateRange.start, DATA.meta.dateRange.end);
+}
+
+function toggleAd(adId) {
+  const allIds = Object.keys(AD_TEXT);
+  // Lazy-init SELECTED_ADS to the full set on first interaction, so
+  // "unchecking one" starts from "all selected" rather than "none".
+  if (!SELECTED_ADS || SELECTED_ADS.size === 0) {
+    SELECTED_ADS = new Set(allIds);
+  }
+  if (SELECTED_ADS.has(adId)) SELECTED_ADS.delete(adId);
+  else                        SELECTED_ADS.add(adId);
+  // If user re-selects everything, collapse back to "null" (all)
+  if (SELECTED_ADS.size === allIds.length) SELECTED_ADS = null;
+  reapplyFilters();
+  updateAdCheckboxes();
+}
+
+function selectAllAds() {
+  SELECTED_ADS = null;
+  reapplyFilters();
+  updateAdCheckboxes();
+}
+
+function deselectAllAds() {
+  SELECTED_ADS = new Set(); // empty Set — computeData falls back to "all" when empty
+  // Actually deselect all means: no ads → treat as an empty result set. Use a
+  // sentinel that computeData recognizes: an empty Set means "select none".
+  SELECTED_ADS = new Set(['__none__']);
+  reapplyFilters();
+  updateAdCheckboxes();
+}
+
+function toggleAdsPopover(force) {
+  const el = document.getElementById('ads-popover');
+  if (!el) return;
+  const open = force !== undefined ? force : el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  if (open) updateAdCheckboxes();
+}
+
+// Update the checked-state of checkboxes without rebuilding the popover DOM,
+// so the popover stays open and scroll position is preserved.
+function updateAdCheckboxes() {
+  const allIds = Object.keys(AD_TEXT);
+  const isAll  = !SELECTED_ADS || SELECTED_ADS.size === 0
+              || SELECTED_ADS.size === allIds.length;
+  const isNone = SELECTED_ADS && SELECTED_ADS.has('__none__');
+
+  allIds.forEach(id => {
+    const cb = document.getElementById('adcb-' + id);
+    if (!cb) return;
+    if (isAll)       cb.checked = true;
+    else if (isNone) cb.checked = false;
+    else             cb.checked = SELECTED_ADS.has(id);
+  });
+  // Also update the trigger button label
+  const btn = document.getElementById('ads-filter-btn');
+  if (btn) {
+    const count = isNone ? 0 : (isAll ? allIds.length : SELECTED_ADS.size);
+    btn.innerHTML = `🎯 ${count} / ${allIds.length} ads ▾`;
+  }
 }
 
 function setPreset(days) {
@@ -416,9 +505,20 @@ function renderFilterBanner() {
   }
   const stale = freshness.endsWith('d ago') && parseInt(freshness) >= 3;
 
+  // Ads filter state
+  const allAdIds   = Object.keys(AD_TEXT);
+  const totalAds   = allAdIds.length;
+  const isNoneAds  = SELECTED_ADS && SELECTED_ADS.has('__none__');
+  const isAllAds   = !SELECTED_ADS || SELECTED_ADS.size === 0
+                  || SELECTED_ADS.size === totalAds;
+  const selectedCount = isNoneAds ? 0 : (isAllAds ? totalAds : SELECTED_ADS.size);
+  // Highlight the button when a filter is active
+  const adsFiltered = !isAllAds || isNoneAds;
+
   document.getElementById('persistent-banner').innerHTML = `
     <div style="margin:0 0 16px 0;padding:12px 14px;background:#fff;border:1px solid #e9deef;
-                border-radius:8px;display:flex;flex-wrap:wrap;align-items:center;gap:14px">
+                border-radius:8px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+                position:relative">
       <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:600">
         📅 Date range
       </div>
@@ -447,6 +547,56 @@ function renderFilterBanner() {
                        color:${isFull?'#fff':'#410270'};border:1px solid #410270;
                        border-radius:4px;cursor:pointer;font-weight:600">All</button>
       </div>
+
+      <!-- Ad filter button + popover -->
+      <div style="position:relative">
+        <button id="ads-filter-btn"
+                onclick="event.stopPropagation(); toggleAdsPopover();"
+                style="padding:5px 10px;font-size:11px;
+                       background:${adsFiltered?'#00A880':'#f0faf7'};
+                       color:${adsFiltered?'#fff':'#00553f'};
+                       border:1px solid #00A880;border-radius:4px;cursor:pointer;font-weight:600">
+          🎯 ${selectedCount} / ${totalAds} ads ▾
+        </button>
+        <div id="ads-popover" style="display:none;position:absolute;top:calc(100% + 6px);left:0;
+                    background:#fff;border:1px solid #d4c5db;border-radius:8px;
+                    box-shadow:0 8px 24px rgba(65,2,112,0.12);
+                    z-index:100;min-width:340px;max-width:420px;
+                    max-height:400px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="padding:10px 12px;border-bottom:1px solid #e9deef;
+                      display:flex;gap:8px;align-items:center;background:#faf7fc">
+            <div style="font-size:11px;font-weight:700;color:var(--text);flex:1">Filter ads</div>
+            <button onclick="event.stopPropagation(); selectAllAds();"
+                    style="padding:3px 8px;font-size:10px;background:#f7f1fa;
+                           color:#410270;border:1px solid #410270;border-radius:3px;
+                           cursor:pointer;font-weight:600">All</button>
+            <button onclick="event.stopPropagation(); deselectAllAds();"
+                    style="padding:3px 8px;font-size:10px;background:#fff;
+                           color:#410270;border:1px solid #410270;border-radius:3px;
+                           cursor:pointer;font-weight:600">None</button>
+          </div>
+          <div style="overflow-y:auto;flex:1;padding:6px 0">
+            ${allAdIds.map(id => {
+              const text = (AD_TEXT[id] || `Ad ${id}`).slice(0, 65);
+              return `
+                <label style="display:flex;align-items:flex-start;gap:8px;padding:6px 12px;
+                              font-size:12px;line-height:1.4;cursor:pointer;color:var(--text)"
+                       onmouseover="this.style.background='#faf7fc'"
+                       onmouseout="this.style.background=''"
+                       onclick="event.stopPropagation()">
+                  <input type="checkbox" id="adcb-${id}"
+                         onchange="toggleAd('${id}')"
+                         style="margin-top:2px;flex-shrink:0;cursor:pointer">
+                  <div style="flex:1">
+                    <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${id}</div>
+                    <div>${text}${text.length >= 65 ? '…' : ''}</div>
+                  </div>
+                </label>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
       <div style="margin-left:auto;font-size:11px;color:var(--muted);text-align:right;line-height:1.4">
         Showing ${adCount} ${adCount===1?'ad':'ads'} over ${fullText}<br>
         <span style="font-size:10px;${stale?'color:#D92D55;font-weight:700':''}">
@@ -455,6 +605,9 @@ function renderFilterBanner() {
       </div>
     </div>
   `;
+
+  // Sync checkbox states with current SELECTED_ADS
+  updateAdCheckboxes();
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
