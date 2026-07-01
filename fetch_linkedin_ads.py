@@ -81,6 +81,7 @@ AD_TEXT = {
     "1263591753": "We run our own business on the same principles we apply to clients. These are screens from our internal dashboard",
     "1271088023": "Most companies struggle to get their people to use AI. That wasn't our problem. At Digital Forms, 80-90% of the team",
     "1271088023": "The most expensive inaction is just the stuff that's too easy to live with. The cost of that normalization is real",
+    "1441876993": "PE operating partners taught me something I can't unlearn. So what do they actually do after buying a company?",
 }
 AD_IDS = list(AD_TEXT.keys())
 
