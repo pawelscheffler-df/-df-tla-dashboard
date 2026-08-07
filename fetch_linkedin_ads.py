@@ -82,6 +82,9 @@ AD_TEXT = {
     "1271088023": "Most companies struggle to get their people to use AI. That wasn't our problem. At Digital Forms, 80-90% of the team",
     "1271088023": "The most expensive inaction is just the stuff that's too easy to live with. The cost of that normalization is real",
     "1441876993": "PE operating partners taught me something I can't unlearn. So what do they actually do after buying a company?",
+    "447738593": "A few years ago, an investor asked me a simple question: what do you want this company to be in a few years?",
+    "1512838266": "Every client asks me some version of this now: "Why do we need you if I can build a prototype in one evening?"",
+    "1459593343": "The more enterprise the software project, the less AI actually speeds it up. Six software house founders in a room",
 }
 AD_IDS = list(AD_TEXT.keys())
 
